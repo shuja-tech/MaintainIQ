@@ -2,9 +2,9 @@
 
 **Live link:** https://maintainiq.vercel.app
 
-
+**--**
 **SMIT Hackathon**
-
+**--**
 
 **Track:** B — Supabase (Backend-as-a-Service)
 **Stack:** React 18 + Vite + React Router + Tailwind CSS + Supabase (Postgres, Auth, Edge Functions) + `qrcode.react`
