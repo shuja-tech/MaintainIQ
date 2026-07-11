@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-graphite-900 text-paper font-body;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+h1, h2, h3, h4 {
+  @apply font-display;
+}
+
+.asset-tag {
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, #171F28 0%, #131A22 100%);
+  border-radius: 4px;
+}
+
+.asset-tag::before,
+.asset-tag::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(255,201,60,0.55);
+  border-style: solid;
+  top: 6px;
+}
+
+.asset-tag::before {
+  left: 6px;
+  border-width: 2px 0 0 2px;
+}
+
+.asset-tag::after {
+  right: 6px;
+  border-width: 2px 2px 0 0;
+}
+
+.corner-brackets {
+  position: relative;
+}
+.corner-brackets::before,
+.corner-brackets::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: #FFC93C;
+  border-style: solid;
+  opacity: 0.7;
+}
+.corner-brackets::before {
+  top: -1px; left: -1px;
+  border-width: 2px 0 0 2px;
+}
+.corner-brackets::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+.input {
+  @apply w-full rounded-tag border border-graphite-600 bg-graphite-800 px-3 py-2 text-sm outline-none focus:border-safety;
+}
+
+::selection {
+  background: #FFC93C;
+  color: #0B1014;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #33414F;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
