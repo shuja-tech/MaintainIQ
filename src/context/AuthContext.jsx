@@ -9,6 +9,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!supabase) {
+      // Supabase not configured in this environment (e.g., missing Vercel env vars)
+      setLoading(false)
+      setSession(null)
+      setProfile(null)
+      return
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
       if (data.session) loadProfile(data.session.user.id)
@@ -28,16 +36,19 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function loadProfile(userId) {
+    if (!supabase) return
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
     setProfile(data)
     setLoading(false)
   }
 
   async function signIn(email, password) {
+    if (!supabase) throw new Error('Supabase not configured')
     return supabase.auth.signInWithPassword({ email, password })
   }
 
   async function signUp(email, password, fullName, role) {
+    if (!supabase) throw new Error('Supabase not configured')
     return supabase.auth.signUp({
       email,
       password,
@@ -46,8 +57,10 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    if (!supabase) return
     await supabase.auth.signOut()
   }
+
 
   const value = {
     session,
