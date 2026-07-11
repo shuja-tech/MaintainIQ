@@ -3,11 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  // Fails loudly in dev so misconfiguration is obvious instead of a silent 401 later.
-  console.warn(
-    'Missing Supabase environment variables. Copy .env.example to .env and fill in your project URL and anon key.'
-  )
-}
+// In production, missing env vars should not crash the whole SPA.
+// Instead we expose a null client so pages can show a friendly error.
+export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
