@@ -3,6 +3,7 @@
 **Live link:** https://maintainiq.vercel.app
 
 
+**SMIT Hackathon**
 
 
 **Track:** B — Supabase (Backend-as-a-Service)
