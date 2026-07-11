@@ -5,8 +5,10 @@ export default function QRCodeDisplay({ asset }) {
   const canvasWrapRef = useRef(null)
   // Use NEXT_PUBLIC-like runtime URL so deployed builds work from any subpath.
   // If not set, fall back to the current origin (works for local dev).
-  const publicBaseUrl = import.meta.env.VITE_PUBLIC_BASE_URL || window.location.origin
+  // Normalize to avoid double slashes when env var ends with '/'
+  const publicBaseUrl = (import.meta.env.VITE_PUBLIC_BASE_URL || window.location.origin).replace(/\/+$/, '')
   const publicUrl = `${publicBaseUrl}/asset/${asset.asset_code}`
+
 
   function downloadPng() {
     const canvas = canvasWrapRef.current.querySelector('canvas')
