@@ -1,6 +1,6 @@
 # MaintainIQ — AI-Powered QR Maintenance & Asset History Platform
 
-**Live link:** https://maintainiq.vercel.app
+**Live link:** https://maintain-iq-chi.vercel.app/
 
 **--**
 **SMIT Hackathon**
