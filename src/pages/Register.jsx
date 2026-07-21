@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Register() {
-  const { signUp } = useAuth()
+  const { signUp, hasPendingAdminRequest } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'user' })
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'technician' })
   const [error, setError] = useState(null)
   const [notice, setNotice] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -22,27 +22,33 @@ export default function Register() {
     setError(null)
     setSubmitting(true)
 
-    // Prevent rapid re-submits that can trigger Supabase auth email rate limits.
-    // (e.g., user double-clicks the button or hits Enter repeatedly.)
     const { data, error } = await signUp(form.email, form.password, form.fullName, form.role)
-
-    setSubmitting(false)
 
     if (error) {
       setError(error.message)
+      setSubmitting(false)
       return
     }
 
+    setSubmitting(false)
+
     if (data.session) {
-      navigate('/dashboard')
+      // Navigate to dashboard — if they selected admin, they'll be prompted
+      // to submit their admin approval request with a fresh session.
+      navigate(form.role === 'admin' ? '/dashboard?adminRequest=1' : '/dashboard')
     } else {
-      setNotice('Account created. Check your email to confirm, then sign in.')
+      // Email confirmation required
+      setNotice(
+        form.role === 'admin'
+          ? 'Account created! After confirming your email and signing in, visit the Dashboard to submit your administrator approval request.'
+          : 'Account created. Check your email to confirm, then sign in.'
+      )
     }
   }
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-md flex-col justify-center px-4">
-      <div className="asset-tag p-8">
+      <div className="asset-tag p-8 motion-in hover-lift" style={{ animationDelay: '60ms' }}>
         <p className="font-mono text-xs uppercase tracking-widest text-safety">Create account</p>
         <h1 className="mt-1 text-2xl font-semibold">Join your maintenance team</h1>
 
@@ -87,10 +93,15 @@ export default function Register() {
               onChange={(e) => update('role', e.target.value)}
               className="w-full rounded-tag border border-graphite-600 bg-graphite-800 px-3 py-2 text-sm outline-none focus:border-safety"
             >
-              <option value="admin">Administrator</option>
               <option value="technician">Technician</option>
-              <option value="user">User</option>
+              <option value="admin">Administrator (requires approval)</option>
             </select>
+            {form.role === 'admin' && (
+              <p className="mt-1 text-xs text-safety">
+                Administrator registrations require approval from an existing admin.
+                After creating your account, submit your approval request from the Dashboard.
+              </p>
+            )}
           </div>
 
           {error && <p className="text-sm text-danger">{error}</p>}
@@ -98,10 +109,14 @@ export default function Register() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || hasPendingAdminRequest}
             className="w-full rounded-tag bg-safety py-2.5 text-sm font-semibold text-graphite-950 hover:brightness-95 transition disabled:opacity-60"
           >
-            {submitting ? 'Creating account…' : 'Create account'}
+            {submitting
+              ? 'Creating account…'
+              : hasPendingAdminRequest
+                ? 'Approval pending…'
+                : 'Create account'}
           </button>
         </form>
 
