@@ -6,12 +6,38 @@ html, body, #root {
   height: 100%;
 }
 
+.pt-serif-regular {
+  font-family: "PT Serif", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.pt-serif-bold {
+  font-family: "PT Serif", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.pt-serif-regular-italic {
+  font-family: "PT Serif", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.pt-serif-bold-italic {
+  font-family: "PT Serif", serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
 body {
   @apply bg-graphite-900 text-paper font-body;
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0);
-  background-size: 22px 22px;
+  background-image: url('/src/images/image.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
+
 
 h1, h2, h3, h4 {
   @apply font-display;
@@ -85,9 +111,63 @@ h1, h2, h3, h4 {
   border-radius: 3px;
 }
 
+/* Shared motion tokens */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatGlow {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+@keyframes shimmer {
+  0% { transform: translateX(-60%); }
+  100% { transform: translateX(60%); }
+}
+
+@layer utilities {
+  .motion-in {
+    animation: fadeInUp 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hover-lift {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 18px 44px -22px rgba(0,0,0,0.7);
+  }
+  .focus-ring {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 201, 60, 0.16);
+  }
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+    animation: shimmer 1.2s ease-in-out infinite;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
+

@@ -136,18 +136,7 @@ create table if not exists public.admin_requests (
   created_at timestamptz not null default now()
 );
 
-create index if not exists idx_admin_requests_status on public.admin_requests(status);
-create index if not exists idx_admin_requests_user on public.admin_requests(user_id);
 
--- ---------------------------------------------------------
--- Row Level Security
--- ---------------------------------------------------------
-alter table public.profiles enable row level security;
-alter table public.assets enable row level security;
-alter table public.issues enable row level security;
-alter table public.maintenance_records enable row level security;
-alter table public.asset_history enable row level security;
-alter table public.admin_requests enable row level security;
 
 -- profiles: users can read all profiles (for technician dropdowns), edit only their own
 create policy "profiles are readable by authenticated users"

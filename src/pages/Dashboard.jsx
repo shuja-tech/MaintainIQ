@@ -3,7 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import StatusBadge from '../components/StatusBadge'
-import Loader from '../components/Loader'
+import Skeleton from '../components/Skeleton'
+import DashboardCharts from '../components/DashboardCharts'
 
 export default function Dashboard() {
   const { profile, isAdmin, user, createAdminRequest, hasPendingAdminRequest, getPendingAdminRequests, approveAdminRequest, rejectAdminRequest } = useAuth()
@@ -51,7 +52,6 @@ export default function Dashboard() {
     setRecentIssues((issues || []).slice(0, 8))
     setLoading(false)
 
-    // Load pending admin requests if admin
     if (isAdmin) {
       loadPendingRequests()
     }
@@ -88,12 +88,26 @@ export default function Dashboard() {
       setAdminReqError(error.message)
     } else {
       setAdminReqSuccess(true)
-      setSearchParams({})  // remove ?adminRequest from URL
+      setSearchParams({})
     }
     setSubmittingAdminReq(false)
   }
 
-  if (loading) return <Loader label="Loading dashboard…" />
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <Skeleton variant="bar" width="240px" height="28px" />
+        <Skeleton variant="bar" width="180px" height="16px" className="mt-2" />
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} variant="card" lines={2} />
+          ))}
+        </div>
+        <div className="mt-8">
+          <Skeleton variant="card" lines={6} />
+        </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -113,7 +127,6 @@ export default function Dashboard() {
           <StatCard label="Out of service" value={stats.outOfService} accent="text-danger" />
         </div>
 
-        {/* Admin Request Prompt — shown when user lands here after registering as admin */}
         {showAdminRequestPrompt && (
           <div className="mt-8 asset-tag p-5 border border-safety/30 bg-safety/5">
             <h2 className="font-semibold">Submit administrator approval request</h2>
@@ -129,7 +142,7 @@ export default function Dashboard() {
               disabled={submittingAdminReq}
               className="mt-3 rounded-tag bg-safety px-4 py-2 text-sm font-semibold text-graphite-950 hover:brightness-95 transition disabled:opacity-60"
             >
-              {submittingAdminReq ? 'Submitting…' : 'Submit admin request'}
+              {submittingAdminReq ? 'Submitting...' : 'Submit admin request'}
             </button>
           </div>
         )}
@@ -137,12 +150,11 @@ export default function Dashboard() {
         {adminReqSuccess && (
           <div className="mt-8 asset-tag p-5 border border-safety/30 bg-safety/5">
             <p className="text-sm text-teal">
-              ✅ Your administrator approval request has been submitted. An existing admin will review and approve it from their Dashboard.
+              Your administrator approval request has been submitted. An existing admin will review and approve it from their Dashboard.
             </p>
           </div>
         )}
 
-        {/* Admin Requests Management — visible only to admins */}
         {isAdmin && (
           <div className="mt-8 asset-tag p-5 border border-safety/20">
             <div className="flex items-center justify-between">
@@ -155,7 +167,7 @@ export default function Dashboard() {
                 )}
               </h2>
               {requestsLoading && (
-                <span className="text-xs text-muted">Loading…</span>
+                <span className="text-xs text-muted">Loading...</span>
               )}
             </div>
 
@@ -192,24 +204,24 @@ export default function Dashboard() {
                       Reject
                     </button>
                   </div>
-                </div>
               ))}
             </div>
-          </div>
         )}
+
+        <DashboardCharts />
 
         <div className="mt-8 asset-tag p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Recent issues</h2>
             <Link to="/issues" className="text-sm text-safety hover:underline">
-              View all →
+              View all &rarr;
             </Link>
           </div>
 
           <div className="mt-4 divide-y divide-graphite-700">
             {recentIssues.length === 0 && (
               <p className="py-6 text-center text-sm text-muted">
-                No issues yet. They'll show up here once reported.
+                No issues yet. They will show up here once reported.
               </p>
             )}
 
@@ -223,7 +235,7 @@ export default function Dashboard() {
                   <p className="font-mono text-xs text-muted">{issue.issue_number}</p>
                   <p className="font-medium">{issue.title}</p>
                   <p className="text-xs text-muted">
-                    {issue.assets?.name} · {issue.assets?.asset_code}
+                    {issue.assets?.name} &middot; {issue.assets?.asset_code}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -233,7 +245,6 @@ export default function Dashboard() {
               </Link>
             ))}
           </div>
-        </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
@@ -249,7 +260,6 @@ export default function Dashboard() {
             View all issues
           </Link>
         </div>
-      </div>
     </div>
   )
 }
@@ -262,4 +272,3 @@ function StatCard({ label, value, accent }) {
     </div>
   )
 }
-
