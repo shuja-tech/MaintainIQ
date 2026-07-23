@@ -106,6 +106,7 @@ export default function Dashboard() {
         <div className="mt-8">
           <Skeleton variant="card" lines={6} />
         </div>
+      </div>
     )
   }
 
@@ -204,8 +205,10 @@ export default function Dashboard() {
                       Reject
                     </button>
                   </div>
+                </div>
               ))}
             </div>
+          </div>
         )}
 
         <DashboardCharts />
@@ -246,23 +249,26 @@ export default function Dashboard() {
             ))}
           </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            to="/assets"
-            className="rounded-tag bg-safety px-4 py-2 text-sm font-semibold text-graphite-950 hover:brightness-95 transition hover-lift"
-          >
-            Manage assets
-          </Link>
-          <Link
-            to="/issues"
-            className="rounded-tag border border-graphite-600 px-4 py-2 text-sm hover:border-safety hover:text-safety transition hover-lift"
-          >
-            View all issues
-          </Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              to="/assets"
+              className="rounded-tag bg-safety px-4 py-2 text-sm font-semibold text-graphite-950 hover:brightness-95 transition hover-lift"
+            >
+              Manage assets
+            </Link>
+            <Link
+              to="/issues"
+              className="rounded-tag border border-graphite-600 px-4 py-2 text-sm hover:border-safety hover:text-safety transition hover-lift"
+            >
+              View all issues
+            </Link>
+          </div>
         </div>
+      </div>
     </div>
   )
 }
+
 
 function StatCard({ label, value, accent }) {
   return (

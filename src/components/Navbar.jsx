@@ -38,6 +38,7 @@ export default function Navbar() {
           </span>
           <span className="font-display text-lg font-semibold tracking-tight">
             Maintain<span className="text-safety">IQ</span>
+          </span>
         </Link>
 
         {session && (
@@ -87,24 +88,25 @@ export default function Navbar() {
           )}
         </div>
 
-      {session && (
-        <nav className="flex items-center gap-1 overflow-x-auto px-4 pb-2 md:hidden">
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-1 rounded-tag border border-graphite-600 px-2.5 py-1 text-[11px] text-muted hover:border-safety hover:text-safety transition-colors"
-          >
-            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            Search
-          </button>
-          <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>
-          <NavLink to="/assets" className={linkClass}>Assets</NavLink>
-          <NavLink to="/issues" className={linkClass}>Issues</NavLink>
-        </nav>
-      )}
+        {session && (
+          <nav className="flex items-center gap-1 overflow-x-auto px-4 pb-2 md:hidden">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-1 rounded-tag border border-graphite-600 px-2.5 py-1 text-[11px] text-muted hover:border-safety hover:text-safety transition-colors"
+            >
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Search
+            </button>
+            <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>
+            <NavLink to="/assets" className={linkClass}>Assets</NavLink>
+            <NavLink to="/issues" className={linkClass}>Issues</NavLink>
+          </nav>
+        )}
 
-      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+        <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+      </div>
     </header>
   )
 }

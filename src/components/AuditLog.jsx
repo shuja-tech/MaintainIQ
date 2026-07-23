@@ -85,6 +85,7 @@ export default function AuditLog({ limit }) {
               <p className="text-[11px] text-muted/40">{log.profiles.full_name}</p>
             )}
           </div>
+        </div>
       ))}
     </div>
   )

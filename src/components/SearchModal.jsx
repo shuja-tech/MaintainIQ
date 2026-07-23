@@ -170,6 +170,7 @@ export default function SearchModal({ open, onClose }) {
             </div>
           )}
         </div>
+      </div>
     </div>
   )
 }

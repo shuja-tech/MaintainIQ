@@ -34,6 +34,7 @@ export function SkeletonTable({ rows }) {
             <SkeletonBar width="60px" height="22px" className="rounded-tag" />
             <SkeletonBar width="60px" height="22px" className="rounded-tag" />
           </div>
+        </div>
       ))}
     </div>
   )
@@ -54,6 +55,7 @@ export function SkeletonChart() {
           />
         ))}
       </div>
+    </div>
   )
 }
 
