@@ -5,6 +5,10 @@
 // This function receives a natural-language complaint plus safe asset
 // context, calls the Anthropic API, and returns strictly-validated JSON.
 // The API key never touches the browser.
+//
+// Rate limiting: max 10 requests per IP per 60-second window.
+// For production with multiple Edge Function instances, consider Supabase's
+// built-in rate limiting or an external KV store.
 
 import { serve } from 'https://deno.land/std@0.203.0/http/server.ts'
 
@@ -14,6 +18,53 @@ const corsHeaders = {
 }
 
 const ALLOWED_PRIORITIES = ['Low', 'Medium', 'High', 'Critical']
+
+// ---- Simple in-memory rate limiter ----
+const RATE_LIMIT_WINDOW_MS = 60_000 // 60 seconds
+const RATE_LIMIT_MAX = 10           // max requests per window
+
+interface RateEntry {
+  count: number
+  resetAt: number
+}
+
+const rateMap = new Map<string, RateEntry>()
+
+function getClientIp(req: Request): string {
+  // Supabase passes the real IP via x-forwarded-for or x-real-ip
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || req.headers.get('x-real-ip')?.trim()
+    || 'unknown'
+}
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfter: number } {
+  const now = Date.now()
+  const entry = rateMap.get(ip)
+
+  if (!entry || now >= entry.resetAt) {
+    // Start a new window
+    rateMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
+    return { allowed: true, retryAfter: 0 }
+  }
+
+  entry.count += 1
+  if (entry.count > RATE_LIMIT_MAX) {
+    const retryAfter = Math.ceil((entry.resetAt - now) / 1000)
+    return { allowed: false, retryAfter }
+  }
+
+  return { allowed: true, retryAfter: 0 }
+}
+
+// Clean up stale entries every 5 minutes to avoid memory leaks
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of rateMap) {
+    if (now >= entry.resetAt) rateMap.delete(key)
+  }
+}, 300_000)
+
+// ---- End rate limiter ----
 
 function safeFallback(complaint: string) {
   return {
@@ -29,9 +80,29 @@ function safeFallback(complaint: string) {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
+
+  // ---- Rate limit check ----
+  const ip = getClientIp(req)
+  const { allowed, retryAfter } = checkRateLimit(ip)
+
+  if (!allowed) {
+    return new Response(
+      JSON.stringify({ error: `Rate limit exceeded. Try again in ${retryAfter} seconds.` }),
+      {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Retry-After': String(retryAfter),
+        },
+      },
+    )
+  }
+  // ---- End rate limit check ----
 
   try {
     const { complaint, asset } = await req.json()
