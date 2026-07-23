@@ -25,7 +25,7 @@ export default function Login() {
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-md flex-col justify-center px-4">
-      <div className="asset-tag p-8">
+      <div className="asset-tag p-8 motion-in hover-lift" style={{ animationDelay: '60ms' }}>
         <p className="font-mono text-xs uppercase tracking-widest text-safety">Staff access</p>
         <h1 className="mt-1 text-2xl font-semibold">Sign in to MaintainIQ</h1>
         <p className="mt-1 text-sm text-muted">Administrators and technicians only. Reporters don't need an account.</p>

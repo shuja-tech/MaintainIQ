@@ -13,25 +13,88 @@ import Issues from './pages/Issues'
 import IssueDetails from './pages/IssueDetails'
 import NotFound from './pages/NotFound'
 
+function Footer() {
+  return (
+    <footer className="border-t border-[#ffc342] bg-graphite-900/50">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-muted">
+            © {new Date().getFullYear()} MaintainIQ
+          </div>
+          <div className="font-mono text-xs uppercase tracking-[0.2em] text-safety/80">
+            Scan • Report • Diagnose • Maintain
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
 export default function App() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/asset/:code" element={<PublicAssetPage />} />
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/asset/:code" element={<PublicAssetPage />} />
 
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/assets" element={<ProtectedRoute><Assets /></ProtectedRoute>} />
-        <Route path="/assets/new" element={<ProtectedRoute adminOnly><AssetNew /></ProtectedRoute>} />
-        <Route path="/assets/:code" element={<ProtectedRoute><AssetDetails /></ProtectedRoute>} />
-        <Route path="/issues" element={<ProtectedRoute><Issues /></ProtectedRoute>} />
-        <Route path="/issues/:id" element={<ProtectedRoute><IssueDetails /></ProtectedRoute>} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assets"
+            element={
+              <ProtectedRoute>
+                <Assets />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assets/new"
+            element={
+              <ProtectedRoute adminOnly>
+                <AssetNew />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assets/:code"
+            element={
+              <ProtectedRoute>
+                <AssetDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/issues"
+            element={
+              <ProtectedRoute>
+                <Issues />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/issues/:id"
+            element={
+              <ProtectedRoute>
+                <IssueDetails />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+      <Footer />
     </div>
   )
 }
+

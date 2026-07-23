@@ -14,11 +14,13 @@ create extension if not exists "uuid-ossp";
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null default 'Unnamed User',
-  role text not null default 'admin' check (role in ('admin', 'technician')),
+  role text not null default 'technician' check (role in ('admin', 'technician')),
   created_at timestamptz not null default now()
 );
 
--- Auto-create a profile row whenever a new auth user signs up
+-- Auto-create a profile row whenever a new auth user signs up.
+-- SAFETY: raw metadata role is NEVER trusted — all new users default to 'technician'.
+-- Only an existing admin can promote a user to admin (via admin_requests approval).
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
@@ -26,7 +28,7 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', 'Unnamed User'),
-    coalesce(new.raw_user_meta_data->>'role', 'admin')
+    'technician'
   );
   return new;
 end;
@@ -121,13 +123,20 @@ create table if not exists public.asset_history (
 create index if not exists idx_history_asset on public.asset_history(asset_id);
 
 -- ---------------------------------------------------------
--- Row Level Security
+-- 6. admin_requests  (approval workflow for new admin sign-ups)
 -- ---------------------------------------------------------
-alter table public.profiles enable row level security;
-alter table public.assets enable row level security;
-alter table public.issues enable row level security;
-alter table public.maintenance_records enable row level security;
-alter table public.asset_history enable row level security;
+create table if not exists public.admin_requests (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  full_name text not null,
+  email text not null,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  reviewed_by uuid references public.profiles(id),
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+
 
 -- profiles: users can read all profiles (for technician dropdowns), edit only their own
 create policy "profiles are readable by authenticated users"
@@ -137,6 +146,11 @@ create policy "profiles are readable by authenticated users"
 create policy "users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
+
+create policy "admins can update any profile"
+  on public.profiles for update
+  to authenticated
+  using (auth.uid() in (select id from public.profiles where role = 'admin'));
 
 -- assets: PUBLIC can read safe columns via the public_assets view (below).
 -- Raw table read/write requires an authenticated (admin/technician) session.
@@ -197,6 +211,30 @@ create policy "anyone can insert asset history"
   on public.asset_history for insert
   to anon, authenticated
   with check (true);
+
+-- admin_requests: admins can read all requests; the requesting user can read their own;
+-- insertable by any authenticated user; only admins can update (approve/reject).
+create policy "admins can read all admin_requests"
+  on public.admin_requests for select
+  to authenticated
+  using (
+    auth.uid() in (select id from public.profiles where role = 'admin')
+  );
+
+create policy "users can read their own admin_requests"
+  on public.admin_requests for select
+  to authenticated
+  using (auth.uid() = user_id);
+
+create policy "authenticated users can insert admin_requests"
+  on public.admin_requests for insert
+  to authenticated
+  with check (auth.uid() = user_id);
+
+create policy "only admins can update admin_requests"
+  on public.admin_requests for update
+  to authenticated
+  using (auth.uid() in (select id from public.profiles where role = 'admin'));
 
 -- ---------------------------------------------------------
 -- Safe public view — used by the public asset page so that
