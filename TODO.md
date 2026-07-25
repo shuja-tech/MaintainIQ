@@ -1,39 +1,59 @@
-# ✅ Product Improvements — Complete
+# TODO
 
-## Phase 1: Foundation Setup
-- [x] Install dependencies (Vitest, testing lib, recharts, Sentry)
-- [x] Setup CI/CD pipeline (GitHub Actions) — `.github/workflows/ci.yml`
+## Phase 1: Admin Approval Request System — COMPLETE ✅
+### (Prevents unauthorized admin registration)
 
-## Phase 2: Dashboard Charts
-- [x] Install recharts
-- [x] Create chart components — `src/components/DashboardCharts.jsx`
-- [x] Add charts to Dashboard — integrated in `Dashboard.jsx`
+### Database Changes
+- [x] `profiles.role` default changed from `'admin'` → `'technician'`
+- [x] `handle_new_user()` trigger: ALL new users get role `'technician'` (never trusts metadata)
+- [x] New `admin_requests` table (id, user_id, full_name, email, status, reviewed_by, reviewed_at, created_at)
+- [x] RLS policies: admins read all, users read own, only admins update
+- [x] RLS policy: admins can update any profile
 
-## Phase 3: Auto-Assign Technician
-- [x] Create auto-assign logic — `src/lib/autoAssignTechnician.js`
-- [x] Assignment by least-loaded technician
-- [x] `assignNewIssue()` helper for issue creation hooks
+### AuthContext (`src/context/AuthContext.jsx`)
+- [x] `signUp()` always sends `role: 'technician'` to backend
+- [x] `createAdminRequest()` — creates pending request
+- [x] `getPendingAdminRequests()` — admin-only fetch
+- [x] `approveAdminRequest()` — approves + upgrades profile role
+- [x] `rejectAdminRequest()` — rejects request
+- [x] `checkPendingAdminRequest()` — auto-check on auth state change
+- [x] `hasPendingAdminRequest` state exposed
 
-## Phase 4: Audit Log
-- [x] Create `audit_log` migration — `supabase/migration_audit_log.sql`
-- [x] Add audit logging helper — `src/components/AuditLog.jsx` (includes `logAuditEvent()`)
-- [x] Admin-only audit log viewer component
+### Register Page (`src/pages/Register.jsx`)
+- [x] Default role: `'technician'`
+- [x] Admin option labeled "Administrator (requires approval)" with helper text
+- [x] On admin signup → redirect to `/dashboard?adminRequest=1`
+- [x] Button disabled when pending request exists
 
-## Phase 5: Global Search
-- [x] Create SearchModal component — `src/components/SearchModal.jsx`
-- [x] Search assets, issues, technicians via Supabase
-- [x] Keyboard shortcut listener (Ctrl+K / Cmd+K) in Navbar
+### Dashboard (`src/pages/Dashboard.jsx`)
+- [x] Admin request prompt when `?adminRequest=1` param present
+- [x] Success message after submitting request
+- [x] "Pending Admin Requests" section (admin-only) with Approve/Reject buttons
+- [x] Badge count for pending requests
 
-## Phase 6: Loading Skeletons
-- [x] Create Skeleton components — `src/components/Skeleton.jsx`
-- [x] Replace Loader with skeleton placeholders in Dashboard
+### Navbar
+- [x] SearchModal + Ctrl+K hotkey
+- [x] Audit nav link (admin-only)
 
-## Phase 7: Error Monitoring (Sentry)
-- [x] Installed @sentry/react + @sentry/vite-plugin
-- [x] Configured Sentry in `src/main.jsx`
-- [x] Vite plugin for source map upload in production
+### App.jsx
+- [x] `/audit` route added (admin-only via ProtectedRoute)
 
-## Phase 8: Unit Tests
-- [x] Setup Vitest + React Testing Library config — `vite.config.js`, `src/test/setup.js`
-- [x] Tests for AuthContext — `src/test/AuthContext.test.jsx`
-- [x] Tests for admin approval flow — `src/test/AdminApproval.test.jsx`
+### Home.jsx
+- [x] Fixed unbalanced div structure (self-closing div vs regular div)
+
+## Phase 2: 2FA for Administrator Role
+- [ ] Pending decision on implementation approach
+
+## Supabase Migrations
+- [x] `supabase/migration_admin_approval.sql` — migration file
+- [x] `supabase/schema.sql` — merged all changes into main schema
+- [x] `supabase/migration_audit_log.sql` — audit log migration
+
+## Audit Log Fix
+### (Audit page was empty because logAuditEvent() was never called)
+- [x] `AssetNew.jsx` — audit event on asset creation
+- [x] `AssetDetails.jsx` — audit event on asset edit + technician assignment
+- [x] `IssueDetails.jsx` — audit event on issue assign + status change
+- [x] `PublicAssetPage.jsx` — audit event on issue reported by public
+- [x] `AuthContext.jsx` — audit event on admin approve/reject
+</create_file>

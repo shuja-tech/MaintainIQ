@@ -46,6 +46,7 @@ export default function Navbar() {
             <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>
             <NavLink to="/assets" className={linkClass}>Assets</NavLink>
             <NavLink to="/issues" className={linkClass}>Issues</NavLink>
+          {isAdmin && <NavLink to="/audit" className={linkClass}>Audit</NavLink>}
           </nav>
         )}
 
@@ -102,6 +103,7 @@ export default function Navbar() {
             <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>
             <NavLink to="/assets" className={linkClass}>Assets</NavLink>
             <NavLink to="/issues" className={linkClass}>Issues</NavLink>
+          {isAdmin && <NavLink to="/audit" className={linkClass}>Audit</NavLink>}
           </nav>
         )}
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
+import { logAuditEvent } from '../components/AuditLog'
 
 function generateAssetCode() {
   const rand = Math.floor(Math.random() * 900000) + 100000
@@ -74,6 +75,8 @@ export default function AssetNew() {
       action: 'Asset registered',
       details: `${inserted.name} added to the system with code ${inserted.asset_code}.`,
     })
+
+    await logAuditEvent('asset_created', `${inserted.name} (${inserted.asset_code}) registered`, profile?.id)
 
     navigate(`/assets/${inserted.asset_code}`)
   }

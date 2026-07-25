@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import StatusBadge from '../components/StatusBadge'
 import Loader from '../components/Loader'
+import { logAuditEvent } from '../components/AuditLog'
 
 // Maps current issue status -> asset status kept in sync automatically.
 const ASSET_STATUS_FOR_ISSUE_STATUS = {
@@ -80,6 +81,7 @@ export default function IssueDetails() {
       .eq('id', issue.id)
     if (error) return setError(error.message)
     await logHistory('Issue assigned', `Assigned to ${technicians.find((t) => t.id === techId)?.full_name || 'technician'}.`)
+    await logAuditEvent('issue_assigned', `${issue.issue_number} — assigned to ${technicians.find((t) => t.id === techId)?.full_name || 'technician'}`, profile?.id)
     if (asset && ASSET_STATUS_FOR_ISSUE_STATUS[nextStatus]) {
       await supabase.from('assets').update({ status: ASSET_STATUS_FOR_ISSUE_STATUS[nextStatus] }).eq('id', asset.id)
     }
@@ -98,6 +100,7 @@ export default function IssueDetails() {
     if (error) return setError(error.message)
 
     await logHistory(`Issue status changed to ${nextStatus}`, null)
+    await logAuditEvent('issue_resolved', `${issue.issue_number} — status changed to ${nextStatus}`, profile?.id)
 
     const assetStatus = ASSET_STATUS_FOR_ISSUE_STATUS[nextStatus]
     if (assetStatus) {

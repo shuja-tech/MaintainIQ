@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { logAuditEvent } from '../components/AuditLog'
 
 const AuthContext = createContext(null)
 
@@ -142,12 +143,19 @@ export function AuthProvider({ children }) {
       .eq('id', request.user_id)
     if (profileError) return { error: profileError }
 
+    await logAuditEvent('admin_request_approved', `User ${request.user_id} approved as admin`, session?.user?.id)
     return { error: null }
   }
 
   /** Reject a pending admin request (admin-only) */
   async function rejectAdminRequest(requestId) {
     if (!supabase) return { error: new Error('Supabase not configured') }
+
+    const { data: request } = await supabase
+      .from('admin_requests')
+      .select('user_id')
+      .eq('id', requestId)
+      .single()
 
     const { error } = await supabase
       .from('admin_requests')
@@ -158,6 +166,9 @@ export function AuthProvider({ children }) {
       })
       .eq('id', requestId)
 
+    if (!error) {
+      await logAuditEvent('admin_request_rejected', `User ${request?.user_id} admin request rejected`, session?.user?.id)
+    }
     return { error }
   }
 

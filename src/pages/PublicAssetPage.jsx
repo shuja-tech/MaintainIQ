@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { runAiTriage } from '../lib/aiTriage'
 import StatusBadge from '../components/StatusBadge'
 import Loader from '../components/Loader'
+import { logAuditEvent } from '../components/AuditLog'
 
 const PRIORITIES = ['Low', 'Medium', 'High', 'Critical']
 const CATEGORIES = ['Electrical', 'Mechanical', 'Plumbing', 'HVAC', 'Structural', 'Software/Electronics', 'General']
@@ -179,6 +180,7 @@ function ReportIssueForm({ asset, onSubmitted }) {
         related_issue_id: inserted.id,
         details: manual.title,
       })
+      await logAuditEvent('issue_reported', `${inserted.issue_number} — ${manual.title} (${asset.asset_code})`, null)
       onSubmitted(inserted)
     }
     setSubmitting(false)

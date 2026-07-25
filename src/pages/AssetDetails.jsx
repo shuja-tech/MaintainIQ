@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import StatusBadge from '../components/StatusBadge'
 import QRCodeDisplay from '../components/QRCodeDisplay'
 import Loader from '../components/Loader'
+import { logAuditEvent } from '../components/AuditLog'
 
 const STATUS_OPTIONS = ['Operational', 'Issue Reported', 'Under Inspection', 'Under Maintenance', 'Out of Service', 'Retired']
 
@@ -50,6 +51,7 @@ export default function AssetDetails() {
         action: 'Asset details updated',
         details: Object.keys(updates).join(', ') + ' changed.',
       })
+      await logAuditEvent('asset_updated', `${asset.asset_code} — ${Object.keys(updates).join(', ')} updated`, profile?.id)
       await load()
       setEditing(false)
     }
@@ -58,6 +60,7 @@ export default function AssetDetails() {
 
   async function assignTechnician(techId) {
     await saveEdit({ assigned_technician: techId || null })
+    await logAuditEvent('asset_updated', `${asset?.asset_code} — technician ${techId ? 'assigned' : 'unassigned'}`, profile?.id)
   }
 
   if (loading) return <Loader label="Loading asset…" />
